@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunta Brothers — A New Path</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700&family=Barlow:wght@300;400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050505;
+    --dark: #0d0d0d;
+    --panel: #111214;
+    --border: #1e2228;
+    --gold: #c8a84b;
+    --gold-light: #e8c96a;
+    --red: #c0392b;
+    --blue: #1a3a5c;
+    --blue-bright: #2a6db5;
+    --white: #f0ede6;
+    --grey: #8a8a8a;
+    --grey-light: #bbb;
+    --mono: 'Share Tech Mono', monospace;
+    --display: 'Bebas Neue', sans-serif;
+    --body: 'Barlow', sans-serif;
+    --cond: 'Barlow Condensed', sans-serif;
+  }
+ 
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+  html { scroll-behavior: smooth; }
+ 
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: var(--body);
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+ 
+  /* ──── LOADER ──── */
+  #loader {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+  }
+ 
+  .loader-seal {
+    width: 120px;
+    height: 120px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    animation: sealPulse 2s ease-in-out infinite;
+  }
+ 
+  .loader-seal::before {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(200,168,75,0.3);
+    border-radius: 50%;
+  }
+ 
+  .loader-seal::after {
+    content: '⚖';
+    font-size: 3rem;
+    color: var(--gold);
+  }
+ 
+  .loader-bar-wrap {
+    width: 280px;
+    height: 2px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+ 
+  .loader-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light));
+    width: 0%;
+    animation: loadProgress 2.8s ease forwards;
+  }
+ 
+  .loader-text {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+ 
+  .loader-status {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--grey);
+    letter-spacing: 0.1em;
+  }
+ 
+  @keyframes loadProgress {
+    0% { width: 0% }
+    30% { width: 35% }
+    60% { width: 65% }
+    80% { width: 82% }
+    100% { width: 100% }
+  }
+ 
+  @keyframes sealPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(200,168,75,0.3) }
+    50% { box-shadow: 0 0 0 20px rgba(200,168,75,0) }
+  }
+ 
+  /* ──── GLITCH ──── */
+  .glitch-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 8888;
+    opacity: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+  }
+ 
+  .glitch-active { animation: glitchFlash 0.15s steps(1) forwards; }
+ 
+  @keyframes glitchFlash {
+    0% { opacity: 1; transform: translateX(-3px) skewX(-1deg); }
+    33% { opacity: 0.5; transform: translateX(3px) skewX(1deg); background: rgba(192,57,43,0.03); }
+    66% { opacity: 0.8; transform: translateX(-1px); }
+    100% { opacity: 0; transform: none; }
+  }
+ 
+  /* ──── NAVBAR ──── */
+  nav {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    padding: 0 4rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(5,5,5,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(200,168,75,0.15);
+    transition: all 0.4s ease;
+  }
+ 
+  nav.scrolled {
+    background: rgba(5,5,5,0.97);
+    border-bottom-color: rgba(200,168,75,0.4);
+  }
+ 
+  .nav-logo {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+ 
+  .nav-logo span {
+    color: var(--white);
+    opacity: 0.5;
+    font-size: 0.9rem;
+    font-family: var(--mono);
+    letter-spacing: 0.1em;
+  }
+ 
+  .nav-links {
+    display: flex;
+    gap: 2.5rem;
+    list-style: none;
+  }
+ 
+  .nav-links a {
+    font-family: var(--cond);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+ 
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: var(--gold);
+    transition: width 0.3s ease;
+  }
+ 
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { width: 100%; }
+ 
+  .nav-badge {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    border: 1px solid rgba(200,168,75,0.4);
+    padding: 0.3rem 0.8rem;
+    text-transform: uppercase;
+  }
+ 
+  /* ──── HERO ──── */
+  #hero {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse at 30% 50%, rgba(26,58,92,0.2) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(200,168,75,0.05) 0%, transparent 50%);
+  }
+ 
+  .hero-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,168,75,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,168,75,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+ 
+  .hero-tape {
+    position: absolute;
+    top: 40%;
+    left: -5%;
+    right: -5%;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, var(--red) 0, var(--red) 20px, transparent 20px, transparent 30px);
+    opacity: 0.3;
+    transform: rotate(-1deg);
+  }
+ 
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 3.2s forwards;
+  }
+ 
+  .hero-title {
+    font-family: var(--display);
+    font-size: clamp(5rem, 12vw, 11rem);
+    line-height: 0.9;
+    letter-spacing: 0.05em;
+    text-align: center;
+    color: var(--white);
+    opacity: 0;
+    animation: fadeUp 0.8s ease 3.4s forwards;
+    position: relative;
+  }
+ 
+  .hero-title .accent { color: var(--gold); }
+ 
+  .hero-sub {
+    font-family: var(--cond);
+    font-size: 1.1rem;
+    font-weight: 300;
+    letter-spacing: 0.5em;
+    color: var(--grey-light);
+    text-transform: uppercase;
+    margin-top: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 3.6s forwards;
+  }
+ 
+  .hero-divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 2rem auto;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 3.7s forwards;
+  }
+ 
+  .hero-quote {
+    font-family: var(--body);
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--grey);
+    max-width: 500px;
+    text-align: center;
+    line-height: 1.7;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 3.8s forwards;
+  }
+ 
+  .scroll-indicator {
+    position: absolute;
+    bottom: 3rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    animation: fadeIn 1s ease 4s forwards;
+  }
+ 
+  .scroll-indicator span {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+ 
+  .scroll-line {
+    width: 1px;
+    height: 50px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2s ease infinite;
+  }
+ 
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 1; transform: scaleY(1); transform-origin: top; }
+    50% { opacity: 0.3; }
+  }
+ 
+  /* ──── SECTIONS ──── */
+  section {
+    padding: 8rem 0;
+    position: relative;
+  }
+ 
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 4rem;
+  }
+ 
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+ 
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: var(--gold);
+  }
+ 
+  .section-title {
+    font-family: var(--display);
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 1;
+    letter-spacing: 0.05em;
+    margin-bottom: 3rem;
+  }
+ 
+  .section-title .g { color: var(--gold); }
+ 
+  /* ──── FADE IN SCROLL ──── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+ 
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+ 
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+ 
+  /* ──── HISTOIRE ──── */
+  #histoire {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+ 
+  .histoire-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+ 
+  .histoire-text p {
+    font-size: 1rem;
+    line-height: 1.9;
+    color: rgba(240,237,230,0.75);
+    margin-bottom: 1.5rem;
+  }
+ 
+  .histoire-text p strong {
+    color: var(--gold);
+    font-weight: 500;
+  }
+ 
+  .histoire-aside {
+    position: sticky;
+    top: 6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+ 
+  .aside-card {
+    background: rgba(200,168,75,0.05);
+    border: 1px solid rgba(200,168,75,0.15);
+    border-left: 3px solid var(--gold);
+    padding: 1.5rem;
+  }
+ 
+  .aside-card-label {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.8rem;
+  }
+ 
+  .aside-card p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: var(--grey-light);
+    font-style: italic;
+  }
+ 
+  /* ──── VISION ──── */
+  #vision {
+    background: var(--black);
+  }
+ 
+  .vision-pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 4rem;
+  }
+ 
+  .pillar {
+    background: var(--panel);
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s ease;
+  }
+ 
+  .pillar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+  }
+ 
+  .pillar:hover { background: #161820; }
+  .pillar:hover::before { transform: scaleX(1); }
+ 
+  .pillar-number {
+    font-family: var(--display);
+    font-size: 5rem;
+    color: rgba(200,168,75,0.08);
+    line-height: 1;
+    margin-bottom: 1rem;
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+  }
+ 
+  .pillar-icon {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+  }
+ 
+  .pillar h3 {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    color: var(--white);
+  }
+ 
+  .pillar p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--grey);
+  }
+ 
+  /* ──── PLANS ──── */
+  .plan-section {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+  }
+ 
+  .plan-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+ 
+  .plan-badge {
+    background: var(--gold);
+    color: var(--black);
+    font-family: var(--display);
+    font-size: 2rem;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.1em;
+    flex-shrink: 0;
+  }
+ 
+  .plan-badge.red {
+    background: transparent;
+    border: 2px solid var(--red);
+    color: var(--red);
+  }
+ 
+  .plan-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+  }
+ 
+  .plan-text p {
+    font-size: 0.95rem;
+    line-height: 1.85;
+    color: rgba(240,237,230,0.7);
+    margin-bottom: 1.2rem;
+  }
+ 
+  .requirements-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+ 
+  .requirements-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    font-size: 0.88rem;
+    color: var(--grey-light);
+    line-height: 1.5;
+  }
+ 
+  .requirements-list li::before {
+    content: '▸';
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+  }
+ 
+  .plan-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 2.5rem;
+    position: relative;
+  }
+ 
+  .plan-card-title {
+    font-family: var(--cond);
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+ 
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+ 
+  .stat-row:last-child { border-bottom: none; }
+ 
+  .stat-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+ 
+  .stat-value {
+    font-family: var(--cond);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--white);
+  }
+ 
+  /* ──── AMBITION ──── */
+  #ambition {
+    background: var(--black);
+    overflow: hidden;
+    position: relative;
+  }
+ 
+  .ambition-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(26,58,92,0.15) 0%, transparent 60%);
+    pointer-events: none;
+  }
+ 
+  .roadmap {
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+ 
+  .roadmap::before {
+    content: '';
+    position: absolute;
+    left: 2rem;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+  }
+ 
+  .roadmap-item {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 2rem;
+    padding: 2rem 0;
+    position: relative;
+  }
+ 
+  .roadmap-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+ 
+  .roadmap-dot {
+    width: 16px;
+    height: 16px;
+    background: var(--gold);
+    border: 3px solid var(--black);
+    border-radius: 50%;
+    margin: 0.3rem auto;
+    position: relative;
+    flex-shrink: 0;
+  }
+ 
+  .roadmap-phase {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    color: var(--gold);
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    margin-top: 0.5rem;
+    white-space: nowrap;
+  }
+ 
+  .roadmap-content {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    border-left: 3px solid var(--gold);
+    position: relative;
+  }
+ 
+  .roadmap-content h3 {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.8rem;
+  }
+ 
+  .roadmap-content p {
+    font-size: 0.9rem;
+    color: var(--grey);
+    line-height: 1.7;
+  }
+ 
+  .roadmap-tag {
+    display: inline-block;
+    background: rgba(200,168,75,0.1);
+    border: 1px solid rgba(200,168,75,0.3);
+    color: var(--gold);
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    padding: 0.2rem 0.6rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+ 
+  /* ──── MEMBRES ──── */
+  #membres {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+  }
+ 
+  .membres-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-top: 4rem;
+  }
+ 
+  .membre-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+    transition: border-color 0.4s ease;
+  }
+ 
+  .membre-card:hover {
+    border-color: rgba(200,168,75,0.5);
+  }
+ 
+  .membre-header {
+    background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+    padding: 3rem 2.5rem 2rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+ 
+  .membre-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+  }
+ 
+  .membre-code {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+  }
+ 
+  .membre-name {
+    font-family: var(--display);
+    font-size: 3.5rem;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    color: var(--white);
+  }
+ 
+  .membre-age {
+    font-family: var(--cond);
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    color: var(--grey);
+    text-transform: uppercase;
+    margin-top: 0.5rem;
+  }
+ 
+  .membre-seal {
+    position: absolute;
+    right: 2rem;
+    bottom: 1rem;
+    font-size: 3.5rem;
+    opacity: 0.06;
+  }
+ 
+  .membre-body {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+ 
+  .membre-section-title {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(200,168,75,0.2);
+    margin-bottom: 1rem;
+  }
+ 
+  .membre-bio {
+    font-size: 0.88rem;
+    line-height: 1.85;
+    color: rgba(240,237,230,0.7);
+  }
+ 
+  .membre-bio strong {
+    color: var(--gold);
+    font-weight: 500;
+  }
+ 
+  .traits-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.8rem;
+  }
+ 
+  .trait {
+    background: rgba(200,168,75,0.05);
+    border: 1px solid rgba(200,168,75,0.12);
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-size: 0.82rem;
+    color: var(--grey-light);
+  }
+ 
+  .trait::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+ 
+  .objectives-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+ 
+  .objective {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--grey-light);
+  }
+ 
+  .obj-tag {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+ 
+  .obj-tag.court { background: rgba(192,57,43,0.2); color: #e74c3c; border: 1px solid rgba(192,57,43,0.3); }
+  .obj-tag.moyen { background: rgba(200,168,75,0.1); color: var(--gold); border: 1px solid rgba(200,168,75,0.3); }
+  .obj-tag.long { background: rgba(42,109,181,0.1); color: #5dade2; border: 1px solid rgba(42,109,181,0.3); }
+ 
+  /* ──── HRP ──── */
+  #hrp {
+    background: #080808;
+    border-top: 1px solid var(--border);
+    position: relative;
+  }
+ 
+  .hrp-warning {
+    background: rgba(192,57,43,0.08);
+    border: 1px solid rgba(192,57,43,0.3);
+    border-left: 3px solid var(--red);
+    padding: 1rem 1.5rem;
+    margin-bottom: 3rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+ 
+  .hrp-warning span {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--red);
+    text-transform: uppercase;
+  }
+ 
+  .hrp-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 3rem;
+  }
+ 
+  .hrp-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+ 
+  .hrp-card-head {
+    background: rgba(200,168,75,0.05);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+ 
+  .hrp-card-head h3 {
+    font-family: var(--display);
+    font-size: 2rem;
+    letter-spacing: 0.05em;
+    color: var(--gold);
+  }
+ 
+  .hrp-id {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    color: var(--grey);
+  }
+ 
+  .hrp-card-body {
+    padding: 2rem;
+  }
+ 
+  .hrp-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.85rem;
+  }
+ 
+  .hrp-info-row:last-child { border-bottom: none; }
+ 
+  .hrp-info-label {
+    color: var(--grey);
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+ 
+  .hrp-info-value {
+    color: var(--white);
+    text-align: right;
+    font-size: 0.85rem;
+  }
+ 
+  .hrp-exp-list {
+    list-style: none;
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+ 
+  .hrp-exp-list li {
+    font-size: 0.8rem;
+    color: var(--grey-light);
+    padding: 0.4rem 0.8rem;
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid rgba(200,168,75,0.4);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+ 
+  .exp-role {
+    font-family: var(--mono);
+    font-size: 0.55rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    background: rgba(200,168,75,0.08);
+    padding: 0.15rem 0.5rem;
+  }
+ 
+  /* ──── REMERCIEMENTS ──── */
+  #remerciements {
+    background: var(--black);
+    text-align: center;
+    padding: 10rem 0 8rem;
+    position: relative;
+    overflow: hidden;
+  }
+ 
+  #remerciements::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(200,168,75,0.06) 0%, transparent 65%);
+  }
+ 
+  .thanks-seal {
+    width: 100px;
+    height: 100px;
+    border: 1px solid rgba(200,168,75,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 2.5rem;
+    position: relative;
+  }
+ 
+  .thanks-seal::after {
+    content: '';
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(200,168,75,0.1);
+    border-radius: 50%;
+  }
+ 
+  .thanks-title {
+    font-family: var(--display);
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    letter-spacing: 0.1em;
+    margin-bottom: 1.5rem;
+  }
+ 
+  .thanks-title .g { color: var(--gold); }
+ 
+  .thanks-text {
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    font-size: 0.95rem;
+    line-height: 1.85;
+    color: var(--grey-light);
+  }
+ 
+  .thanks-names {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-top: 3rem;
+  }
+ 
+  .thanks-name {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+ 
+  .thanks-name strong {
+    font-family: var(--display);
+    font-size: 1.8rem;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+  }
+ 
+  .thanks-name span {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+ 
+  .thanks-divider {
+    width: 1px;
+    background: var(--border);
+    height: 60px;
+    margin: auto 0;
+  }
+ 
+  .footer-bar {
+    background: var(--dark);
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 4rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+ 
+  .footer-bar span {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--grey);
+    text-transform: uppercase;
+  }
+ 
+  /* ──── KEYFRAMES ──── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: none; }
+  }
+ 
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+ 
+  /* ──── RESPONSIVE ──── */
+  @media (max-width: 900px) {
+    nav { padding: 0 2rem; }
+    .nav-links { display: none; }
+    .container { padding: 0 2rem; }
+    .histoire-grid,
+    .plan-content,
+    .vision-pillars,
+    .membres-grid,
+    .hrp-grid { grid-template-columns: 1fr; }
+    .histoire-aside { position: static; }
+    .traits-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+ 
+<!-- GLITCH OVERLAY -->
+<div class="glitch-overlay" id="glitchOverlay"></div>
+ 
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-seal"></div>
+  <div>
+    <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+  </div>
+  <div class="loader-text">Initialisation du dossier...</div>
+  <div class="loader-status" id="loaderStatus">Chargement des profils...</div>
+</div>
+ 
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    KUNTA <span>// Brothers</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#histoire">Histoire</a></li>
+    <li><a href="#vision">Vision</a></li>
+    <li><a href="#doj">DOJ</a></li>
+    <li><a href="#securite">Sécurité</a></li>
+    <li><a href="#ambition">Ambition</a></li>
+    <li><a href="#membres">Membres</a></li>
+    <li><a href="#hrp">HRP</a></li>
+  </ul>
+  <div class="nav-badge">Dossier Confidentiel</div>
+</nav>
+ 
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-tape"></div>
+  <div class="hero-eyebrow">COMPTON, LOS ANGELES — DOSSIER #KBR-2024</div>
+  <h1 class="hero-title">
+    KUNTA<br><span class="accent">BROTHERS</span>
+  </h1>
+  <p class="hero-sub">Redemption · Justice · Légitimité</p>
+  <div class="hero-divider"></div>
+  <p class="hero-quote">"On n'a pas choisi la rue. Mais on a choisi de ne plus la subir."</p>
+  <div class="scroll-indicator">
+    <span>Défiler</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+ 
+<!-- HISTOIRE -->
+<section id="histoire">
+  <div class="container">
+    <div class="section-label">Chapitre 01</div>
+    <h2 class="section-title reveal">L'<span class="g">Histoire</span></h2>
+    <div class="histoire-grid">
+      <div class="histoire-text reveal reveal-delay-1">
+        <p>Jamal et Tyquan Kunta ont grandi dans le quartier sud de Compton, là où les rues portent des noms mais pas de promesses. Fils d'une mère courageuse, <strong>Denise Kunta</strong>, qui travaillait dans deux emplois pour maintenir un toit et trois repas par jour, les deux frères ont connu une enfance marquée par la précarité, le bruit des sirènes, et les silences lourds des lendemains incertains.</p>
+        <p>Leur père, <strong>Marcus Kunta</strong>, ancien mécanicien respecté du quartier, a été <strong>fauché par une balle perdue</strong> lors d'un règlement de comptes entre deux gangs rivaux un soir d'octobre 2009. Jamal avait 8 ans. Tyquan, 6. Ils n'étaient pas là — ils dormaient chez leur tante — mais le lendemain matin, leur monde n'était plus le même.</p>
+        <p>Grandir sans père dans un quartier où les hommes disparaissent ou basculent, c'est apprendre à marcher sur un fil. Les frères Kunta ont vu des amis d'enfance rejoindre des gangs, des voisins arrêtés, des cousins incarcérés. <strong>Ils n'ont jamais touché à l'illégal.</strong> Pas par naïveté — par choix. Un choix douloureux, silencieux, qu'il faut renouveler chaque jour.</p>
+        <p>En 2019, c'est leur oncle <strong>DeShawn</strong>, la seule figure paternelle qu'il leur restait, qui a été condamné à 8 ans de prison pour complicité dans un trafic auquel il était à peine lié. Spectateurs impuissants d'un système qui broyait les leurs, les deux frères ont compris une chose : <strong>rester à l'écart ne suffit pas.</strong> Il faut agir.</p>
+        <p>Depuis, ils travaillent. Ils attendent. Ils préparent. Pas avec des armes — avec des dossiers, de la détermination, et une vision commune de ce que devrait être leur quartier.</p>
+      </div>
+      <div class="histoire-aside reveal reveal-delay-2">
+        <div class="aside-card">
+          <div class="aside-card-label">Événement fondateur</div>
+          <p>"Ils ont tiré sur personne en particulier. Marcus était juste là, à rentrer du boulot. C'est ça qui est le plus difficile à accepter — l'absurdité totale."<br><br>— Denise Kunta, mère</p>
+        </div>
+        <div class="aside-card">
+          <div class="aside-card-label">Le tournant — 2019</div>
+          <p>La condamnation de leur oncle DeShawn a été le déclencheur. Voir un homme bon être détruit par une erreur de réseau social, ça forge une conviction : la justice doit être exercée par des gens qui comprennent d'où vient la douleur.</p>
+        </div>
+        <div class="aside-card">
+          <div class="aside-card-label">Aujourd'hui</div>
+          <p>Les frères Kunta ont quitté Compton pour la ville. Ils cherchent leur place. Pas dans la rue. Dans le système. Pour le changer de l'intérieur.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- VISION -->
+<section id="vision">
+  <div class="container">
+    <div class="section-label">Chapitre 02</div>
+    <h2 class="section-title reveal">Notre <span class="g">Vision</span></h2>
+    <p class="reveal" style="max-width:680px; font-size:1rem; line-height:1.85; color:rgba(240,237,230,0.65); margin-bottom:1rem;">
+      On ne veut pas sauver le monde. On veut que la ville soit plus sûre pour ceux qui n'ont pas d'autre choix que d'y vivre. Trois convictions guident chacune de nos décisions.
+    </p>
+    <div class="vision-pillars">
+      <div class="pillar reveal reveal-delay-1">
+        <div class="pillar-number">01</div>
+        <div class="pillar-icon">⚖️</div>
+        <h3>JUSTICE</h3>
+        <p>Une ville ne peut pas fonctionner quand ses habitants ne font plus confiance à ceux censés les protéger. La justice n'est pas un mot — c'est une pratique quotidienne, impartiale, courageuse.</p>
+      </div>
+      <div class="pillar reveal reveal-delay-2">
+        <div class="pillar-number">02</div>
+        <div class="pillar-icon">🛡️</div>
+        <h3>PROTECTION</h3>
+        <p>Protéger les vulnérables, les commerçants, les familles. Être présent. Pas pour dominer, mais pour sécuriser. La présence physique d'hommes de paix change la dynamique d'un quartier.</p>
+      </div>
+      <div class="pillar reveal reveal-delay-3">
+        <div class="pillar-number">03</div>
+        <div class="pillar-icon">🔗</div>
+        <h3>LÉGITIMITÉ</h3>
+        <p>On vient de là. On parle la même langue. Notre force, c'est notre crédibilité de terrain. Des agents qui comprennent le tissu social valent mieux que des badges sans contexte.</p>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- DOJ -->
+<section id="doj" class="plan-section">
+  <div class="container">
+    <div class="section-label">Chapitre 03 — Plan Prioritaire</div>
+    <div class="plan-header reveal">
+      <div class="plan-badge">A</div>
+      <h2 class="section-title" style="margin-bottom:0">Department <span class="g">of Justice</span></h2>
+    </div>
+    <div class="plan-content">
+      <div class="plan-text reveal reveal-delay-1">
+        <p>Le DOJ représente pour les frères Kunta l'aboutissement d'une conviction : <strong>la loi doit être appliquée par des personnes qui comprennent pourquoi elle est parfois perçue comme un ennemi</strong> dans certains quartiers. Intégrer le Département de Justice, c'est se placer au cœur du système pour en influencer l'équité.</p>
+        <p>Jamal et Tyquan savent que le chemin est long. Les standards sont élevés, la sélection rigoureuse. Mais ils n'ont pas peur des exigences — ils ont été formés par la vie à un niveau d'exigence que nul examen ne peut reproduire.</p>
+        <p>Leur ambition au sein du DOJ n'est pas la hiérarchie pour elle-même, mais <strong>la capacité d'agir en profondeur</strong> : enquêtes sur le terrain, liens avec les communautés, opérations anti-gang menées avec discernement.</p>
+        <ul class="requirements-list" style="margin-top:1.5rem;">
+          <li>Obtenir les certifications et formations nécessaires</li>
+          <li>Construire un réseau de contacts légitimes dans la ville</li>
+          <li>Démontrer intégrité et professionnalisme en situation réelle</li>
+          <li>Monter les échelons avec patience et méthode</li>
+          <li>Opérer sur le terrain avec connaissance des codes locaux</li>
+        </ul>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="plan-card">
+          <div class="plan-card-title">Profil cible — DOJ</div>
+          <div class="stat-row">
+            <span class="stat-label">Département visé</span>
+            <span class="stat-value">DOJ — Terrain</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Spécialisation</span>
+            <span class="stat-value">Crimes organisés</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Atout principal</span>
+            <span class="stat-value">Connaissance terrain</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Priorité dossier</span>
+            <span class="stat-value" style="color:var(--gold)">MAXIMALE</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Statut actuel</span>
+            <span class="stat-value">En préparation</span>
+          </div>
+        </div>
+        <div class="plan-card" style="margin-top:1.5rem; border-left: 3px solid var(--gold);">
+          <div class="plan-card-title">Pourquoi le DOJ ?</div>
+          <p style="font-size:0.88rem; line-height:1.7; color:var(--grey); font-style:italic; margin-top:0.5rem;">
+            "On a vu ce que ça fait quand personne ne représente nos quartiers dans les institutions. On veut être la réponse à ça. Pas des traîtres à notre communauté — des ponts entre elle et une justice qui mérite d'être appelée ainsi."
+          </p>
+          <p style="font-size:0.75rem; color:var(--gold); margin-top:1rem; font-family:var(--mono); letter-spacing:0.1em;">— Jamal Kunta</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- SECURITE -->
+<section id="securite" class="plan-section" style="background:var(--black);">
+  <div class="container">
+    <div class="section-label">Chapitre 04 — Plan Alternatif</div>
+    <div class="plan-header reveal">
+      <div class="plan-badge red">B</div>
+      <h2 class="section-title" style="margin-bottom:0">Agent de <span class="g">Sécurité</span></h2>
+    </div>
+    <div class="plan-content">
+      <div class="plan-text reveal reveal-delay-1">
+        <p>Si l'accès au DOJ venait à être retardé ou bloqué, les frères Kunta ont une alternative solide : intégrer une société de sécurité privée établie. Ce n'est pas un choix par défaut — <strong>c'est une stratégie complémentaire</strong> qui leur permettrait d'acquérir une expérience professionnelle reconnue tout en restant dans leur domaine de conviction.</p>
+        <p>Agent de sécurité, c'est être en première ligne. Observer. Intervenir avec mesure. Gérer des situations sous tension sans perdre la tête. Des compétences qui, in fine, <strong>renforcent le dossier pour le DOJ</strong> et témoignent d'un engagement réel, pas seulement déclaratif.</p>
+        <p>Ils visent des structures sérieuses, reconnues, qui opèrent dans des environnements complexes — centres commerciaux, événements, quartiers sensibles. Des contextes où leur profil est une vraie valeur ajoutée.</p>
+        <ul class="requirements-list" style="margin-top:1.5rem;">
+          <li>Obtenir la carte professionnelle d'agent de sécurité</li>
+          <li>Candidater auprès des sociétés opérant en zone urbaine dense</li>
+          <li>Accumuler une expérience terrain documentée</li>
+          <li>Développer la gestion de crise et la médiation</li>
+          <li>Utiliser ce tremplin pour accéder au Plan A</li>
+        </ul>
+      </div>
+      <div class="reveal reveal-delay-2">
+        <div class="plan-card">
+          <div class="plan-card-title">Profil cible — Sécurité Privée</div>
+          <div class="stat-row">
+            <span class="stat-label">Type de structure</span>
+            <span class="stat-value">Agence privée établie</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Environnement visé</span>
+            <span class="stat-value">Zone urbaine complexe</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Rôle attendu</span>
+            <span class="stat-value">Intervention & Présence</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Valeur ajoutée</span>
+            <span class="stat-value">Profil communautaire</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Durée visée</span>
+            <span class="stat-value">Pont vers Plan A</span>
+          </div>
+        </div>
+        <div class="plan-card" style="margin-top:1.5rem; border-left: 3px solid rgba(192,57,43,0.6);">
+          <div class="plan-card-title">Mindset Opérationnel</div>
+          <p style="font-size:0.88rem; line-height:1.7; color:var(--grey); font-style:italic; margin-top:0.5rem;">
+            "Chaque mission, c'est une opportunité de prouver qu'on peut gérer. Que notre présence calme les choses plutôt que de les aggraver. La réputation se construit sur le terrain, pas sur le papier."
+          </p>
+          <p style="font-size:0.75rem; color:var(--gold); margin-top:1rem; font-family:var(--mono); letter-spacing:0.1em;">— Tyquan Kunta</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- PLAN C dans Ambition -->
+<!-- AMBITION -->
+<section id="ambition">
+  <div class="ambition-bg"></div>
+  <div class="container">
+    <div class="section-label">Chapitre 05</div>
+    <h2 class="section-title reveal">Feuille de <span class="g">Route</span></h2>
+    <p class="reveal" style="max-width:600px; font-size:0.95rem; line-height:1.8; color:rgba(240,237,230,0.6); margin-bottom:1rem;">
+      La destination est claire. Le chemin, lui, demande patience. Voici comment les frères Kunta envisagent leur progression, étape par étape.
+    </p>
+    <div class="roadmap">
+      <div class="roadmap-item reveal">
+        <div class="roadmap-node">
+          <div class="roadmap-dot"></div>
+          <div class="roadmap-phase">Maintenant</div>
+        </div>
+        <div class="roadmap-content">
+          <div class="roadmap-tag">Plan C — Phase Transitoire</div>
+          <h3>Petits Boulots & Réseau</h3>
+          <p>En attendant de pouvoir activer le Plan A ou le Plan B, les frères Kunta ne restent pas immobiles. Livraison, manutention, aide à domicile, petits services — tout ce qui permet de <strong>maintenir une stabilité financière</strong> et de continuer à construire un réseau de connaissances légitimes dans la ville. Chaque interaction est une opportunité de montrer qui ils sont.</p>
+        </div>
+      </div>
+      <div class="roadmap-item reveal reveal-delay-1">
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background:rgba(200,168,75,0.4)"></div>
+          <div class="roadmap-phase">Court terme</div>
+        </div>
+        <div class="roadmap-content">
+          <div class="roadmap-tag">3-6 mois</div>
+          <h3>Dossier & Candidatures</h3>
+          <p>Constituer un dossier irréprochable pour les recruteurs du DOJ et des agences de sécurité. Formation, certificats, lettres de référence. Se faire connaître. Être là où les opportunités se présentent.</p>
+        </div>
+      </div>
+      <div class="roadmap-item reveal reveal-delay-2">
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background:rgba(200,168,75,0.6)"></div>
+          <div class="roadmap-phase">Moyen terme</div>
+        </div>
+        <div class="roadmap-content">
+          <div class="roadmap-tag">6-18 mois</div>
+          <h3>Intégration — Plan A ou B</h3>
+          <p>Intégrer le DOJ ou une structure de sécurité privée reconnue. Commencer en bas de la hiérarchie, avec l'intention explicite de monter. Prouver sur le terrain ce que les dossiers ne peuvent pas montrer seuls.</p>
+        </div>
+      </div>
+      <div class="roadmap-item reveal reveal-delay-3">
+        <div class="roadmap-node">
+          <div class="roadmap-dot" style="background:var(--gold)"></div>
+          <div class="roadmap-phase">Long terme</div>
+        </div>
+        <div class="roadmap-content">
+          <div class="roadmap-tag">2-5 ans</div>
+          <h3>Montée en responsabilités</h3>
+          <p>Accéder à des rôles de responsabilité. Être ceux qui forment les nouvelles recrues, qui établissent les protocoles, qui créent des ponts réels entre institutions et communautés. Laisser une trace qui dépasse leurs propres carrières.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- MEMBRES -->
+<section id="membres">
+  <div class="container">
+    <div class="section-label">Chapitre 06</div>
+    <h2 class="section-title reveal">Les <span class="g">Membres</span></h2>
+    <div class="membres-grid">
+ 
+      <!-- JAMAL -->
+      <div class="membre-card reveal">
+        <div class="membre-header">
+          <div class="membre-code">DOSSIER // KBR-001 — AÎNÉ</div>
+          <div class="membre-name">JAMAL</div>
+          <div class="membre-name" style="color:var(--gold); font-size:2rem; letter-spacing:0.2em;">KUNTA</div>
+          <div class="membre-age">23 ans · Né à Compton · Afro-Américain</div>
+          <div class="membre-seal">⚖</div>
+        </div>
+        <div class="membre-body">
+ 
+          <div>
+            <div class="membre-section-title">Biographie complète</div>
+            <p class="membre-bio">
+              Jamal Kunta est l'aîné. À 8 ans, il a vu le monde de son enfance s'effondrer en une nuit quand <strong>son père Marcus a été tué</strong> par une balle qui ne lui était même pas destinée. C'est lui qui a tenu la main de son petit frère Tyquan le lendemain matin. C'est lui qui n'a pas pleuré devant lui.
+              <br><br>
+              Il a grandi avec cette lourde dette : être le repère. Dans un quartier où les modèles masculins disparaissent à 30 ans, être le grand frère est un travail à temps plein. Jamal a refusé les facilités de la rue — non sans pression. Des mains tendues, des offres codées, des regards de mépris quand il disait non. <strong>Il a dit non à chaque fois.</strong>
+              <br><br>
+              Il a travaillé comme livreur, agent d'entretien, assistant dans un atelier mécanique — le métier de son père. Une façon de le garder vivant. En 2019, quand leur oncle DeShawn a été condamné, quelque chose a basculé en lui. La colère froide. Pas la colère qui brûle tout — <strong>celle qui construit une mission.</strong>
+              <br><br>
+              Jamal parle peu. Observe beaucoup. Il a la mémoire des visages, des noms, des détails. Un instinct forgé par des années à lire les rues pour survivre. Il croit profondément que les institutions peuvent changer — <strong>si des gens comme lui acceptent d'y entrer.</strong>
+            </p>
+          </div>
+ 
+          <div>
+            <div class="membre-section-title">Traits de caractère</div>
+            <div class="traits-grid">
+              <div class="trait">Calme sous pression</div>
+              <div class="trait">Observateur discret</div>
+              <div class="trait">Loyauté absolue</div>
+              <div class="trait">Sang-froid analytique</div>
+              <div class="trait">Autorité naturelle</div>
+              <div class="trait">Empathie maîtrisée</div>
+              <div class="trait">Patience stratégique</div>
+              <div class="trait">Intégrité inflexible</div>
+            </div>
+          </div>
+ 
+          <div>
+            <div class="membre-section-title">Objectifs personnels</div>
+            <div class="objectives-list">
+              <div class="objective">
+                <span class="obj-tag court">Court</span>
+                <span>Décrocher un emploi stable, constituer un dossier DOJ propre et sans faille, maintenir une réputation irréprochable dans la ville.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag court">Court</span>
+                <span>Apprendre à se repérer dans la hiérarchie institutionnelle — qui écoute, qui décide, qui ouvre des portes.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag moyen">Moyen</span>
+                <span>Intégrer le DOJ ou une agence de sécurité privée et y faire ses preuves en tant que professionnel reconnu.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag moyen">Moyen</span>
+                <span>Construire un réseau de contacts légitimes — officiels, commerçants, communautaires — qui font de lui un lien vivant entre la rue et les institutions.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag long">Long</span>
+                <span>Occuper un poste de responsabilité au DOJ. Participer à des opérations sur les crimes organisés avec un impact direct sur la sécurité des quartiers populaires.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag long">Long</span>
+                <span>Devenir une figure de référence pour les jeunes afro-américains qui cherchent un chemin hors de la rue sans trahir leur identité.</span>
+              </div>
+            </div>
+          </div>
+ 
+        </div>
+      </div>
+ 
+      <!-- TYQUAN -->
+      <div class="membre-card reveal reveal-delay-1">
+        <div class="membre-header">
+          <div class="membre-code">DOSSIER // KBR-002 — CADET</div>
+          <div class="membre-name">TYQUAN</div>
+          <div class="membre-name" style="color:var(--gold); font-size:2rem; letter-spacing:0.2em;">KUNTA</div>
+          <div class="membre-age">21 ans · Né à Compton · Afro-Américain</div>
+          <div class="membre-seal">🛡</div>
+        </div>
+        <div class="membre-body">
+ 
+          <div>
+            <div class="membre-section-title">Biographie complète</div>
+            <p class="membre-bio">
+              Tyquan Kunta est le cadet. Il n'a pas les souvenirs de son père — il avait 6 ans — mais il porte l'absence comme une cicatrice permanente. Ce qu'il a, c'est <strong>Jamal</strong>. Son frère lui a tout appris : comment tenir la tête haute, comment traverser une rue la nuit sans flancher, comment refuser sans provoquer.
+              <br><br>
+              Tyquan est différent de Jamal. Là où l'aîné observe, le cadet ressent. Il est plus impulsif, plus expressif — mais il a appris à canaliser cette énergie. La colère qui dormait en lui s'est transformée en quelque chose d'utile : <strong>une rage froide contre l'injustice, et une chaleur authentique pour les gens</strong> qui ne méritent pas ce qu'ils traversent.
+              <br><br>
+              C'est lui qui va parler aux gamins dans la rue. Qui s'arrête sur un coin pour vérifier que tout va bien. Tyquan a un don naturel pour désamorcer les tensions — il comprend les codes, il parle plusieurs langues sociales. <strong>Dans un environnement hostile, il peut être à la fois respecté et non menaçant.</strong>
+              <br><br>
+              La condamnation de leur oncle DeShawn a failli le briser. Il voulait répondre. C'est Jamal qui l'a retenu. Depuis, Tyquan a transformé cette rage en carburant. Il ne cherche plus à répondre à la rue — <strong>il cherche à lui couper le souffle légalement.</strong>
+            </p>
+          </div>
+ 
+          <div>
+            <div class="membre-section-title">Traits de caractère</div>
+            <div class="traits-grid">
+              <div class="trait">Intelligence émotionnelle</div>
+              <div class="trait">Présence physique assertive</div>
+              <div class="trait">Adaptabilité sociale</div>
+              <div class="trait">Courage instinctif</div>
+              <div class="trait">Sens du terrain</div>
+              <div class="trait">Communication directe</div>
+              <div class="trait">Résilience profonde</div>
+              <div class="trait">Protecteur naturel</div>
+            </div>
+          </div>
+ 
+          <div>
+            <div class="membre-section-title">Objectifs personnels</div>
+            <div class="objectives-list">
+              <div class="objective">
+                <span class="obj-tag court">Court</span>
+                <span>Trouver une stabilité financière via des petits jobs, garder la tête hors de l'eau sans compromettre ses valeurs ni son casier vierge.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag court">Court</span>
+                <span>Se former à la médiation et à la gestion des conflits — des compétences qui serviront autant dans le civil que dans une carrière institutionnelle.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag moyen">Moyen</span>
+                <span>Intégrer une société de sécurité privée ou le DOJ aux côtés de Jamal, et y prouver sa valeur opérationnelle dans des situations de haute tension.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag moyen">Moyen</span>
+                <span>Être reconnu dans la ville comme quelqu'un de juste et fiable — autant par les civils que par les autorités. Bâtir une réputation terrain solide.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag long">Long</span>
+                <span>Progresser au sein du DOJ pour intervenir dans des unités de terrain spécialisées, en particulier sur les crimes liés aux gangs et aux quartiers sensibles.</span>
+              </div>
+              <div class="objective">
+                <span class="obj-tag long">Long</span>
+                <span>Être la preuve vivante qu'on peut venir de Compton, n'avoir rien touché à l'illégal, et quand même changer les règles du jeu depuis l'intérieur du système.</span>
+              </div>
+            </div>
+          </div>
+ 
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- HRP -->
+<section id="hrp">
+  <div class="container">
+    <div class="section-label">Chapitre 07 — Hors Roleplay</div>
+    <h2 class="section-title reveal">Présentation <span class="g">HRP</span></h2>
+ 
+    <div class="hrp-warning reveal">
+      <span>⚠ SECTION HORS ROLEPLAY — INFORMATIONS JOUEURS RÉELS</span>
+    </div>
+ 
+    <p class="reveal" style="font-size:0.95rem; line-height:1.8; color:rgba(240,237,230,0.65); max-width:700px; margin-bottom:1rem;">
+      Salut à tous. On est deux joueurs passionnés de roleplay sérieux, avec des années d'expérience sur différents serveurs et organisations. On cherche à rejoindre un projet ambitieux et bien géré, où l'on peut s'investir pleinement dans des personnages construits et une narration cohérente.
+    </p>
+ 
+    <div class="hrp-grid">
+ 
+      <!-- AMADHY -->
+      <div class="hrp-card reveal">
+        <div class="hrp-card-head">
+          <h3>AMADHY</h3>
+          <div class="hrp-id">
+            Prénom RP : <strong style="color:var(--white)">Jamal Kunta</strong><br>
+            ID Discord : <span style="color:var(--gold)">357560014338129930</span>
+          </div>
+        </div>
+        <div class="hrp-card-body">
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Prénom réel</span>
+            <span class="hrp-info-value">Amadeo</span>
+          </div>
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Âge</span>
+            <span class="hrp-info-value">29 ans</span>
+          </div>
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Personnage joué</span>
+            <span class="hrp-info-value">Jamal Kunta — 23 ans</span>
+          </div>
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Heures d'expérience</span>
+            <span class="hrp-info-value" style="color:var(--gold); font-family:var(--display); font-size:1.1rem;">+5 000 H</span>
+          </div>
+ 
+          <div style="margin-top:1.5rem;">
+            <div class="hrp-info-label" style="margin-bottom:0.8rem; display:block;">Expériences précédentes</div>
+            <ul class="hrp-exp-list">
+              <li>SA:MP — Mafia italienne <span class="exp-role">Membre</span></li>
+              <li>SA:MP — Yakuza <span class="exp-role">Membre</span></li>
+              <li>Split — R30 <span class="exp-role">Co-Lead</span></li>
+              <li>Split — OBlock <span class="exp-role">Lead</span></li>
+              <li>Hurricane — TRG <span class="exp-role">Co-Lead</span></li>
+              <li>NoFace — RuffRyders <span class="exp-role">Lead</span></li>
+              <li>NoFace — Chernaya (Mafia Russe) <span class="exp-role">Co-Lead</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+ 
+      <!-- NYDROB9 -->
+      <div class="hrp-card reveal reveal-delay-1">
+        <div class="hrp-card-head">
+          <h3>NYDROB9</h3>
+          <div class="hrp-id">
+            Prénom RP : <strong style="color:var(--white)">Tyquan Kunta</strong><br>
+            ID Discord : <span style="color:var(--gold)">357560014338129930</span>
+          </div>
+        </div>
+        <div class="hrp-card-body">
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Prénom réel</span>
+            <span class="hrp-info-value">Quentin</span>
+          </div>
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Âge</span>
+            <span class="hrp-info-value">26 ans</span>
+          </div>
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Personnage joué</span>
+            <span class="hrp-info-value">Tyquan Kunta — 21 ans</span>
+          </div>
+          <div class="hrp-info-row">
+            <span class="hrp-info-label">Heures d'expérience</span>
+            <span class="hrp-info-value" style="color:var(--gold); font-family:var(--display); font-size:1.1rem;">+3 000 H</span>
+          </div>
+ 
+          <div style="margin-top:1.5rem;">
+            <div class="hrp-info-label" style="margin-bottom:0.8rem; display:block;">Expériences précédentes</div>
+            <ul class="hrp-exp-list">
+              <li>Split — R30 <span class="exp-role">Lead</span></li>
+              <li>Split — OBlock <span class="exp-role">Lead</span></li>
+              <li>Hurricane — TRG Gang <span class="exp-role">Membre</span></li>
+              <li>Hurricane — Frontstreet Gang <span class="exp-role">Membre</span></li>
+              <li>NoFace — RuffRyders <span class="exp-role">Co-Lead</span></li>
+              <li>Arcane — R30 <span class="exp-role">Lead</span></li>
+              <li>Arcane — BMF (Groupe GM) <span class="exp-role">Co-Lead</span></li>
+              <li>NoFace — Chernaya (Mafia Russe) <span class="exp-role">Lead</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+ 
+    <!-- Message commun HRP -->
+    <div class="reveal" style="margin-top:3rem; background:var(--panel); border:1px solid var(--border); padding:2.5rem; border-left:3px solid var(--gold);">
+      <div class="hrp-info-label" style="margin-bottom:1rem; display:block;">Message commun — HRP</div>
+      <p style="font-size:0.92rem; line-height:1.85; color:rgba(240,237,230,0.7);">
+        On est deux joueurs avec une expérience solide dans le RP sérieux — des deux côtés du spectre, puisqu'on a principalement joué du côté criminel/gang. Cette fois, on veut explorer l'autre face de la pièce : <strong style="color:var(--gold)">rejoindre le DOJ ou une structure de sécurité privée</strong> déjà en place.
+        <br><br>
+        Notre expérience passée dans des organisations illégales est un vrai atout pour jouer des personnages qui comprennent les dynamiques de l'intérieur. On connaît les codes, les logiques, les failles — ce qui nous permet d'incarner des agents crédibles, nuancés, et pas naïfs.
+        <br><br>
+        On cherche un environnement RP de qualité, avec des gens impliqués et des histoires qui ont du sens. On s'investit à 100%, on respecte le lore pour s'adapter au mieux sur la durée. C'est un projet qui nous tiens a coeur.
+      <p style="font-size:0.78rem; color:var(--gold); margin-top:1.5rem; font-family:var(--mono); letter-spacing:0.15em; text-transform:uppercase;">— Amadhy & Nydrob9</p>
+    </div>
+  </div>
+</section>
+ 
+<!-- REMERCIEMENTS -->
+<section id="remerciements">
+  <div class="container" style="position:relative; z-index:1;">
+    <div class="thanks-seal reveal">⚖️</div>
+    <h2 class="thanks-title reveal reveal-delay-1">
+      Merci <span class="g">d'avoir</span><br>lu notre dossier
+    </h2>
+    <p class="thanks-text reveal reveal-delay-2">
+      On sait que les dossiers, il en passe beaucoup. On espère que celui-là vous a donné envie de voir ce qu'on peut faire concrètement sur le terrain. L'investissement, la sérieux, la longueur du background — c'est pas du remplissage. C'est ce qu'on est.
+    </p>
+    <div style="width:60px; height:1px; background:linear-gradient(90deg,transparent,var(--gold),transparent); margin:2rem auto;" class="reveal reveal-delay-2"></div>
+    <p class="reveal reveal-delay-3" style="font-size:0.85rem; color:var(--grey); font-style:italic; max-width:480px; margin:0 auto 3rem; line-height:1.7;">
+      Ce site a été créé dans le cadre d'une candidature roleplay. Toutes les informations personnelles (histoire, lieux, noms) sont fictives et construites pour le jeu.
+    </p>
+    <div class="thanks-names reveal reveal-delay-3">
+      <div class="thanks-name">
+        <strong>AMADHY</strong>
+        <span>Jamal Kunta · Amadeo · 29 ans</span>
+        <span style="font-size:0.55rem; color:rgba(200,168,75,0.5); margin-top:0.2rem;">+5 000H exp.</span>
+      </div>
+      <div class="thanks-divider"></div>
+      <div class="thanks-name">
+        <strong>NYDROB9</strong>
+        <span>Tyquan Kunta · Quentin · 26 ans</span>
+        <span style="font-size:0.55rem; color:rgba(200,168,75,0.5); margin-top:0.2rem;">+3 000H exp.</span>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<footer class="footer-bar">
+  <span>Kunta Brothers — Background RP // 2024</span>
+  <span>Dossier confidentiel — Usage RP uniquement</span>
+  <span>DOJ / Sécurité Privée — Plan A · B · C</span>
+</footer>
+ 
+<script>
+  // ── LOADER ──
+  const statuses = [
+    'Chargement des profils...',
+    'Vérification des antécédents...',
+    'Compilation du dossier...',
+    'Authentification...',
+    'Accès autorisé.'
+  ];
+  let si = 0;
+  const statusEl = document.getElementById('loaderStatus');
+  const statusInterval = setInterval(() => {
+    si = Math.min(si + 1, statuses.length - 1);
+    statusEl.textContent = statuses[si];
+    if (si === statuses.length - 1) clearInterval(statusInterval);
+  }, 560);
+ 
+  setTimeout(() => {
+    const loader = document.getElementById('loader');
+    loader.style.transition = 'opacity 0.8s ease';
+    loader.style.opacity = '0';
+    setTimeout(() => { loader.style.display = 'none'; }, 800);
+  }, 3000);
+ 
+  // ── NAVBAR SCROLL ──
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 60);
+  });
+ 
+  // ── SCROLL REVEAL ──
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  reveals.forEach(r => observer.observe(r));
+ 
+  // ── GLITCH ──
+  const glitch = document.getElementById('glitchOverlay');
+  function triggerGlitch() {
+    glitch.classList.add('glitch-active');
+    setTimeout(() => glitch.classList.remove('glitch-active'), 200);
+    const next = 4000 + Math.random() * 12000;
+    setTimeout(triggerGlitch, next);
+  }
+  setTimeout(triggerGlitch, 5000);
+ 
+  // ── SMOOTH NAV ──
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+</script>
+</body>
+</html>
